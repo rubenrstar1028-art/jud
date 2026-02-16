@@ -1,0 +1,2366 @@
+<!doctype html>
+<html lang="es">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistema de Gestión de Expedientes JUD B</title>
+  <script src="/_sdk/data_sdk.js"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet">
+  <style>
+    html, body {
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+    
+    * {
+      box-sizing: border-box;
+    }
+
+    .glass-effect {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .gradient-bg {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .card-hover {
+      transition: all 0.3s ease;
+    }
+
+    .card-hover:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    }
+
+    .metric-card {
+      background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 16px;
+      padding: 24px;
+      transition: all 0.3s ease;
+    }
+
+    .metric-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    .sidebar-item {
+      transition: all 0.3s ease;
+      border-left: 3px solid transparent;
+    }
+
+    .sidebar-item:hover {
+      background: rgba(255,255,255,0.1);
+      border-left-color: #667eea;
+    }
+
+    .sidebar-item.active {
+      background: rgba(102, 126, 234, 0.2);
+      border-left-color: #667eea;
+    }
+
+    .expediente-row {
+      transition: all 0.3s ease;
+      border-left: 4px solid transparent;
+    }
+
+    .expediente-row:hover {
+      background: rgba(102, 126, 234, 0.05);
+      border-left-color: #667eea;
+    }
+
+    .expediente-expandido {
+      background: rgba(102, 126, 234, 0.1);
+      border-left-color: #667eea;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .loading-spinner {
+      border: 3px solid rgba(255,255,255,0.3);
+      border-top-color: #667eea;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .fade-in {
+      animation: fadeIn 0.5s ease-in;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .checkbox-custom {
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border: 2px solid #667eea;
+      border-radius: 4px;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.3s ease;
+    }
+
+    .checkbox-custom:checked {
+      background: #667eea;
+    }
+
+    .checkbox-custom:checked::after {
+      content: '✓';
+      position: absolute;
+      color: white;
+      font-size: 14px;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .modal-overlay {
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(5px);
+    }
+
+    .progress-bar {
+      height: 8px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+      transition: width 0.3s ease;
+    }
+
+    input[type="text"], input[type="password"], input[type="date"], input[type="number"], select, textarea {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: white;
+      border-radius: 8px;
+      padding: 10px 14px;
+      transition: all 0.3s ease;
+    }
+
+    input[type="text"]:focus, input[type="password"]:focus, input[type="date"]:focus, input[type="number"]:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: #667eea;
+      background: rgba(255,255,255,0.1);
+    }
+
+    option {
+      background: #1a1a2e;
+      color: white;
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      margin: 2px;
+    }
+
+    .tag-rh { background: rgba(239, 68, 68, 0.2); color: #fca5a5; }
+    .tag-chj { background: rgba(59, 130, 246, 0.2); color: #93c5fd; }
+    .tag-vg { background: rgba(168, 85, 247, 0.2); color: #d8b4fe; }
+    .tag-sp { background: rgba(34, 197, 94, 0.2); color: #86efac; }
+    .tag-ccc { background: rgba(251, 146, 60, 0.2); color: #fdba74; }
+
+    .scrollbar-custom::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .scrollbar-custom::-webkit-scrollbar-track {
+      background: rgba(255,255,255,0.05);
+      border-radius: 4px;
+    }
+
+    .scrollbar-custom::-webkit-scrollbar-thumb {
+      background: rgba(102, 126, 234, 0.5);
+      border-radius: 4px;
+    }
+
+    .scrollbar-custom::-webkit-scrollbar-thumb:hover {
+      background: rgba(102, 126, 234, 0.8);
+    }
+
+    .login-container {
+      min-height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 16px 24px;
+      border-radius: 12px;
+      color: white;
+      font-weight: 600;
+      z-index: 1000;
+      animation: slideIn 0.3s ease;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+
+    .toast-error {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    }
+
+    .toast-success {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    }
+
+    .toast-warning {
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateX(400px);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+ </head>
+ <body class="gradient-bg text-white"><!-- Login Screen -->
+  <div id="login-screen" class="login-container">
+   <div class="glass-effect rounded-2xl p-8 w-full max-w-md mx-4 fade-in">
+    <div class="text-center mb-8">
+     <h1 class="text-4xl font-bold mb-2" id="login-titulo">JUD B</h1>
+     <p class="text-sm opacity-75">Sistema de Gestión de Expedientes</p>
+    </div>
+    <form id="form-login">
+     <div class="mb-4"><label for="login-usuario" class="block text-sm font-semibold mb-2">Usuario</label> <input type="text" id="login-usuario" required class="w-full" placeholder="Ingrese su usuario" autocomplete="username">
+     </div>
+     <div class="mb-6"><label for="login-password" class="block text-sm font-semibold mb-2">Contraseña</label> <input type="password" id="login-password" required class="w-full" placeholder="Ingrese su contraseña" autocomplete="current-password">
+     </div><button type="submit" id="btn-login" class="btn-primary w-full px-6 py-3 rounded-lg font-semibold"> Iniciar Sesión </button>
+    </form>
+    <div id="login-error" class="mt-4 p-3 rounded-lg text-sm text-center hidden" style="background: rgba(239, 68, 68, 0.2); color: #fca5a5;">
+    </div>
+   </div>
+  </div><!-- Main App -->
+  <div id="app" class="hidden" style="display: flex; height: 100%;"><!-- Sidebar -->
+   <aside id="sidebar" class="w-64 glass-effect p-6 flex flex-col" style="height: 100%;">
+    <div class="mb-8">
+     <h1 class="text-2xl font-bold mb-1" id="titulo-sistema">SGE JUD B</h1>
+     <p class="text-sm opacity-75" id="nombre-area">Área JUD B</p>
+    </div>
+    <nav class="flex-1"><button class="sidebar-item active w-full text-left px-4 py-3 rounded-lg mb-2 flex items-center" data-view="dashboard"> <span class="mr-3 text-xl">📊</span> <span>Dashboard</span> </button> <button class="sidebar-item w-full text-left px-4 py-3 rounded-lg mb-2 flex items-center" data-view="expedientes"> <span class="mr-3 text-xl">📁</span> <span>Expedientes</span> </button> <button class="sidebar-item w-full text-left px-4 py-3 rounded-lg mb-2 flex items-center" data-view="turnado" id="nav-turnado"> <span class="mr-3 text-xl">⚖️</span> <span>Turnado</span> </button> <button class="sidebar-item w-full text-left px-4 py-3 rounded-lg mb-2 flex items-center" data-view="citatorios"> <span class="mr-3 text-xl">📅</span> <span>Citatorios</span> </button> <button class="sidebar-item w-full text-left px-4 py-3 rounded-lg mb-2 flex items-center" data-view="reportes"> <span class="mr-3 text-xl">📈</span> <span>Reportes</span> </button> <button class="sidebar-item w-full text-left px-4 py-3 rounded-lg mb-2 flex items-center" data-view="configuracion" id="nav-configuracion"> <span class="mr-3 text-xl">⚙️</span> <span>Configuración</span> </button>
+    </nav>
+    <div class="mt-auto pt-6 border-t border-white border-opacity-20">
+     <div class="flex items-center mb-3">
+      <div class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center font-bold" id="usuario-avatar">
+       A
+      </div>
+      <div class="ml-3 flex-1">
+       <p class="font-semibold text-sm" id="usuario-nombre">Usuario</p>
+       <p class="text-xs opacity-75" id="usuario-rol">Rol</p>
+      </div>
+     </div><button id="btn-cerrar-sesion" class="w-full px-4 py-2 rounded-lg font-semibold text-sm bg-red-600 hover:bg-red-700 transition"> 🚪 Cerrar Sesión </button>
+    </div>
+   </aside><!-- Main Content -->
+   <main class="flex-1 overflow-y-auto scrollbar-custom" style="height: 100%;"><!-- Dashboard View -->
+    <div id="view-dashboard" class="view-container p-8">
+     <header class="mb-8">
+      <h2 class="text-4xl font-bold mb-2">Dashboard</h2>
+      <p class="text-lg opacity-75">Vista general del sistema de expedientes</p>
+     </header><!-- Metrics Grid -->
+     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+      <div class="metric-card card-hover">
+       <div class="flex items-center justify-between mb-4"><span class="text-4xl">📋</span> <span class="text-sm opacity-75">Total</span>
+       </div>
+       <h3 class="text-3xl font-bold mb-1" id="metric-total">0</h3>
+       <p class="text-sm opacity-75">Expedientes Totales</p>
+      </div>
+      <div class="metric-card card-hover">
+       <div class="flex items-center justify-between mb-4"><span class="text-4xl">⏳</span> <span class="text-sm opacity-75">En Proceso</span>
+       </div>
+       <h3 class="text-3xl font-bold mb-1" id="metric-pendientes">0</h3>
+       <p class="text-sm opacity-75">Pendientes Completar</p>
+      </div>
+      <div class="metric-card card-hover">
+       <div class="flex items-center justify-between mb-4"><span class="text-4xl">✅</span> <span class="text-sm opacity-75">Este Mes</span>
+       </div>
+       <h3 class="text-3xl font-bold mb-1" id="metric-notificados">0</h3>
+       <p class="text-sm opacity-75">Notificados</p>
+      </div>
+      <div class="metric-card card-hover">
+       <div class="flex items-center justify-between mb-4"><span class="text-4xl">⚠️</span> <span class="text-sm opacity-75">Urgente</span>
+       </div>
+       <h3 class="text-3xl font-bold mb-1" id="metric-caducar">0</h3>
+       <p class="text-sm opacity-75">Próximos a Caducar</p>
+      </div>
+      <div class="metric-card card-hover">
+       <div class="flex items-center justify-between mb-4"><span class="text-4xl">👥</span> <span class="text-sm opacity-75">Presencial</span>
+       </div>
+       <h3 class="text-3xl font-bold mb-1" id="metric-comparecencias">0</h3>
+       <p class="text-sm opacity-75">Comparecencias</p>
+      </div>
+      <div class="metric-card card-hover">
+       <div class="flex items-center justify-between mb-4"><span class="text-4xl">📬</span> <span class="text-sm opacity-75">Domicilio</span>
+       </div>
+       <h3 class="text-3xl font-bold mb-1" id="metric-cedulas">0</h3>
+       <p class="text-sm opacity-75">Cédulas Notificadas</p>
+      </div>
+     </div><!-- Activity Sections -->
+     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6"><!-- Recent Activity -->
+      <div class="glass-effect rounded-2xl p-6">
+       <h3 class="text-xl font-bold mb-4 flex items-center"><span class="mr-2">🕐</span> Actividad Reciente</h3>
+       <div id="actividad-reciente" class="space-y-3 max-h-80 overflow-y-auto scrollbar-custom">
+        <p class="text-sm opacity-75 text-center py-8">No hay actividad reciente</p>
+       </div>
+      </div><!-- Today's Activity -->
+      <div class="glass-effect rounded-2xl p-6">
+       <h3 class="text-xl font-bold mb-4 flex items-center"><span class="mr-2">📅</span> Actividad del Día</h3>
+       <div id="actividad-dia" class="space-y-3 max-h-80 overflow-y-auto scrollbar-custom">
+        <p class="text-sm opacity-75 text-center py-8">No hay citatorios programados para hoy</p>
+       </div>
+      </div>
+     </div>
+    </div><!-- Expedientes View -->
+    <div id="view-expedientes" class="view-container hidden p-8">
+     <header class="mb-6 flex justify-between items-center">
+      <div>
+       <h2 class="text-4xl font-bold mb-2">Expedientes</h2>
+       <p class="text-lg opacity-75">Gestión y seguimiento de expedientes</p>
+      </div>
+     </header><!-- Filters -->
+     <div class="glass-effect rounded-2xl p-6 mb-6">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+       <div><label for="filter-estado" class="block text-sm font-semibold mb-2">Filtrar por Estado</label> <select id="filter-estado" class="w-full"> <option value="">Todos</option> <option value="pendiente_turnar">Pendientes por Turnar</option> <option value="asignado">Asignado</option> <option value="en_proceso">En Proceso</option> <option value="proximo_caducar">Próximo a Caducar</option> <option value="imposible_notificar">Imposible de Notificar</option> <option value="regresado_sar">Regresado a SAR</option> <option value="concluido">Concluido</option> </select>
+       </div>
+       <div><label for="filter-tipo" class="block text-sm font-semibold mb-2">Tipo de Expediente</label> <select id="filter-tipo" class="w-full"> <option value="">Todos</option> <option value="RH">RH - Acta Administrativa</option> <option value="CHJ">CHJ - Carpeta de Investigación</option> <option value="VG">VG - Violencia de Género</option> <option value="SP">SP - Sistema Penitenciario</option> <option value="CCC">CCC - Control y Confianza</option> </select>
+       </div>
+       <div><label for="filter-corporacion" class="block text-sm font-semibold mb-2">Corporación</label> <select id="filter-corporacion" class="w-full"> <option value="">Todas</option> <option value="P.P">P.P</option> <option value="P.A">P.A</option> <option value="P.B.I">P.B.I</option> </select>
+       </div>
+       <div><label for="filter-abogado" class="block text-sm font-semibold mb-2">Abogado</label> <select id="filter-abogado" class="w-full"> <option value="">Todos</option> </select>
+       </div>
+      </div>
+      <div class="mt-4"><label for="search-expediente" class="sr-only">Buscar expediente</label> <input type="text" id="search-expediente" placeholder="Buscar por número de expediente..." class="w-full">
+      </div>
+     </div><!-- Expedientes List -->
+     <div class="glass-effect rounded-2xl p-6">
+      <div id="expedientes-list" class="space-y-2">
+       <p class="text-center py-12 opacity-75">No hay expedientes para mostrar</p>
+      </div>
+     </div>
+    </div><!-- Turnado View -->
+    <div id="view-turnado" class="view-container hidden p-8">
+     <header class="mb-6 flex justify-between items-center">
+      <div>
+       <h2 class="text-4xl font-bold mb-2">Turnado de Expedientes</h2>
+       <p class="text-lg opacity-75">Asignación automática o manual de expedientes</p>
+      </div><button id="btn-nuevo-expediente-turnado" class="btn-primary px-6 py-3 rounded-lg font-semibold flex items-center"> <span class="mr-2">➕</span> Nuevo Expediente </button>
+     </header>
+     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6"><!-- Pendientes por Turnar -->
+      <div class="glass-effect rounded-2xl p-6">
+       <h3 class="text-xl font-bold mb-4 flex items-center justify-between"><span><span class="mr-2">📥</span>Pendientes por Turnar</span> <span class="badge" style="background: rgba(251, 146, 60, 0.2); color: #fdba74;" id="count-pendientes">0</span></h3>
+       <div id="pendientes-turnar-list" class="space-y-2 max-h-96 overflow-y-auto scrollbar-custom">
+        <p class="text-center py-8 opacity-75 text-sm">No hay expedientes pendientes por turnar</p>
+       </div>
+      </div><!-- Abogados Disponibles -->
+      <div class="glass-effect rounded-2xl p-6">
+       <h3 class="text-xl font-bold mb-4 flex items-center"><span class="mr-2">👨‍⚖️</span>Abogados Disponibles</h3>
+       <div class="mb-4"><button id="btn-turnar-automatico" class="btn-primary w-full px-4 py-3 rounded-lg font-semibold mb-2"> <span class="mr-2">🤖</span> Turnar Automáticamente </button>
+        <p class="text-xs opacity-75 text-center">Distribución equitativa entre abogados seleccionados</p>
+       </div>
+       <div id="abogados-turnado-list" class="space-y-2">
+        <p class="text-center py-8 opacity-75 text-sm">No hay abogados registrados</p>
+       </div>
+      </div>
+     </div>
+    </div><!-- Citatorios View -->
+    <div id="view-citatorios" class="view-container hidden p-8">
+     <header class="mb-6">
+      <h2 class="text-4xl font-bold mb-2">Gestión de Citatorios</h2>
+      <p class="text-lg opacity-75">Programación y seguimiento de citatorios</p>
+     </header><!-- Filtros de Citatorios -->
+     <div class="glass-effect rounded-2xl p-6 mb-6">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+       <div><label for="citatorio-filter-inicio" class="block text-sm font-semibold mb-2">Fecha Inicio</label> <input type="date" id="citatorio-filter-inicio" class="w-full">
+       </div>
+       <div><label for="citatorio-filter-fin" class="block text-sm font-semibold mb-2">Fecha Fin</label> <input type="date" id="citatorio-filter-fin" class="w-full">
+       </div>
+       <div><label for="citatorio-filter-estado" class="block text-sm font-semibold mb-2">Estado</label> <select id="citatorio-filter-estado" class="w-full"> <option value="">Todos</option> <option value="pendiente">Pendiente</option> <option value="se_presento">Se Presentó</option> <option value="no_se_presento">No Se Presentó</option> </select>
+       </div>
+       <div><label for="citatorio-filter-abogado" class="block text-sm font-semibold mb-2">Abogado</label> <select id="citatorio-filter-abogado" class="w-full"> <option value="">Todos</option> </select>
+       </div>
+      </div><button id="btn-aplicar-filtros-citatorios" class="btn-primary px-6 py-3 rounded-lg font-semibold mt-4"> Aplicar Filtros </button>
+     </div><!-- Resumen de Citatorios -->
+     <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+      <div class="metric-card">
+       <div class="flex items-center justify-between mb-4"><span class="text-4xl">📅</span> <span class="text-sm opacity-75">Total</span>
+       </div>
+       <h3 class="text-3xl font-bold mb-1" id="citatorio-metric-total">0</h3>
+       <p class="text-sm opacity-75">Citatorios Totales</p>
+      </div>
+      <div class="metric-card">
+       <div class="flex items-center justify-between mb-4"><span class="text-4xl">⏳</span> <span class="text-sm opacity-75">Pendientes</span>
+       </div>
+       <h3 class="text-3xl font-bold mb-1" id="citatorio-metric-pendientes">0</h3>
+       <p class="text-sm opacity-75">Por Realizar</p>
+      </div>
+      <div class="metric-card">
+       <div class="flex items-center justify-between mb-4"><span class="text-4xl">✅</span> <span class="text-sm opacity-75">Realizados</span>
+       </div>
+       <h3 class="text-3xl font-bold mb-1" id="citatorio-metric-se-presento">0</h3>
+       <p class="text-sm opacity-75">Se Presentaron</p>
+      </div>
+      <div class="metric-card">
+       <div class="flex items-center justify-between mb-4"><span class="text-4xl">❌</span> <span class="text-sm opacity-75">Ausencias</span>
+       </div>
+       <h3 class="text-3xl font-bold mb-1" id="citatorio-metric-no-se-presento">0</h3>
+       <p class="text-sm opacity-75">No Se Presentaron</p>
+      </div>
+     </div><!-- Lista de Citatorios -->
+     <div class="glass-effect rounded-2xl p-6">
+      <h3 class="text-xl font-bold mb-4">Lista de Citatorios</h3>
+      <div id="citatorios-list" class="space-y-3">
+       <p class="text-center py-12 opacity-75">No hay citatorios para mostrar</p>
+      </div>
+     </div>
+    </div><!-- Reportes View -->
+    <div id="view-reportes" class="view-container hidden p-8">
+     <header class="mb-6">
+      <h2 class="text-4xl font-bold mb-2">Reportes y Estadísticas</h2>
+      <p class="text-lg opacity-75">Análisis y descarga de datos</p>
+     </header>
+     <div class="glass-effect rounded-2xl p-6 mb-6">
+      <h3 class="text-xl font-bold mb-4">Generar Reporte</h3>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+       <div><label for="reporte-fecha-inicio" class="block text-sm font-semibold mb-2">Fecha Inicio</label> <input type="date" id="reporte-fecha-inicio" class="w-full">
+       </div>
+       <div><label for="reporte-fecha-fin" class="block text-sm font-semibold mb-2">Fecha Fin</label> <input type="date" id="reporte-fecha-fin" class="w-full">
+       </div>
+       <div><label for="reporte-tipo" class="block text-sm font-semibold mb-2">Tipo de Expediente</label> <select id="reporte-tipo" class="w-full"> <option value="">Todos</option> <option value="RH">RH</option> <option value="CHJ">CHJ</option> <option value="VG">VG</option> <option value="SP">SP</option> <option value="CCC">CCC</option> </select>
+       </div>
+      </div>
+      <div class="flex gap-4"><button id="btn-descargar-excel" class="btn-primary px-6 py-3 rounded-lg font-semibold flex-1"> <span class="mr-2">📊</span> Descargar Excel </button>
+      </div>
+     </div><!-- Statistics Summary -->
+     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div class="glass-effect rounded-2xl p-6">
+       <h3 class="text-xl font-bold mb-4">Estadísticas por Tipo</h3>
+       <div id="stats-tipo" class="space-y-3"><!-- Stats will be populated here -->
+       </div>
+      </div>
+      <div class="glass-effect rounded-2xl p-6">
+       <h3 class="text-xl font-bold mb-4">Estadísticas por Estado</h3>
+       <div id="stats-estado" class="space-y-3"><!-- Stats will be populated here -->
+       </div>
+      </div>
+     </div>
+    </div><!-- Configuración View -->
+    <div id="view-configuracion" class="view-container hidden p-8">
+     <header class="mb-6">
+      <h2 class="text-4xl font-bold mb-2">Configuración</h2>
+      <p class="text-lg opacity-75">Gestión de usuarios y campos personalizados</p>
+     </header>
+     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6"><!-- Gestión de Usuarios -->
+      <div class="glass-effect rounded-2xl p-6">
+       <h3 class="text-xl font-bold mb-4 flex items-center justify-between"><span><span class="mr-2">👨‍⚖️</span>Gestión de Usuarios</span> <button id="btn-agregar-usuario" class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg text-sm font-semibold"> + Agregar </button></h3>
+       <div id="usuarios-list" class="space-y-2 max-h-96 overflow-y-auto scrollbar-custom">
+        <p class="text-center py-8 opacity-75 text-sm">No hay usuarios registrados</p>
+       </div>
+      </div><!-- Campos Configurables -->
+      <div class="glass-effect rounded-2xl p-6">
+       <h3 class="text-xl font-bold mb-4 flex items-center"><span class="mr-2">⚙️</span>Campos Configurables</h3>
+       <div class="mb-6">
+        <h4 class="font-semibold mb-2 flex items-center justify-between"><span>Corporaciones</span> <button id="btn-agregar-corporacion" class="px-3 py-1 bg-blue-600 hover:bg-blue-700 rounded text-xs font-semibold"> + Agregar </button></h4>
+        <div id="corporaciones-list" class="space-y-2"><!-- Corporaciones will be listed here -->
+        </div>
+       </div>
+      </div>
+     </div>
+    </div>
+   </main>
+  </div><!-- Modal: Nuevo Expediente Masivo (Turnado) -->
+  <div id="modal-expediente-masivo" class="fixed inset-0 modal-overlay hidden items-center justify-center z-50" style="display: none;">
+   <div class="glass-effect rounded-2xl p-8 max-w-2xl w-full mx-4 max-h-full overflow-y-auto scrollbar-custom">
+    <h3 class="text-2xl font-bold mb-6">Cargar Expedientes para Turnado</h3>
+    <form id="form-expediente-masivo">
+     <div class="mb-6"><label for="input-expedientes-masivos" class="block text-sm font-semibold mb-2">Números de Expediente (uno por línea) *</label> <textarea id="input-expedientes-masivos" rows="10" required class="w-full" placeholder="RH/2025/0001
+CHJ/2025/0002
+VG/2025/0003"></textarea>
+      <p class="text-xs opacity-75 mt-2">💡 Ingrese cada expediente en una línea nueva</p>
+     </div>
+     <div class="mb-6"><label for="input-fecha-llegada-masivo" class="block text-sm font-semibold mb-2">Fecha de Llegada *</label> <input type="date" id="input-fecha-llegada-masivo" required class="w-full">
+     </div>
+     <div class="flex justify-end gap-4"><button type="button" id="btn-cancelar-expediente-masivo" class="px-6 py-3 rounded-lg font-semibold bg-gray-600 hover:bg-gray-700"> Cancelar </button> <button type="submit" id="btn-guardar-expediente-masivo" class="btn-primary px-6 py-3 rounded-lg font-semibold"> Guardar Expedientes </button>
+     </div>
+    </form>
+   </div>
+  </div><!-- Modal: Detalle de Expediente -->
+  <div id="modal-detalle-expediente" class="fixed inset-0 modal-overlay hidden items-center justify-center z-50" style="display: none;">
+   <div class="glass-effect rounded-2xl p-8 max-w-6xl w-full mx-4 max-h-full overflow-y-auto scrollbar-custom">
+    <div class="flex justify-between items-start mb-6">
+     <div>
+      <h3 class="text-2xl font-bold mb-2" id="detalle-numero-expediente">Expediente</h3>
+      <div class="flex gap-2" id="detalle-tags"><!-- Tags will be added here -->
+      </div>
+     </div><button id="btn-cerrar-detalle" class="text-2xl hover:text-red-400">×</button>
+    </div>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+     <div>
+      <p class="text-sm opacity-75 mb-1">Fecha de Llegada</p>
+      <p class="font-semibold" id="detalle-fecha-llegada">-</p>
+     </div>
+     <div>
+      <p class="text-sm opacity-75 mb-1">Fecha de Asignación</p>
+      <p class="font-semibold" id="detalle-fecha-asignacion">-</p>
+     </div>
+     <div>
+      <p class="text-sm opacity-75 mb-1">Abogado Asignado</p>
+      <p class="font-semibold" id="detalle-abogado">-</p>
+     </div>
+    </div><!-- Elementos -->
+    <div class="mb-6">
+     <div class="flex items-center justify-between mb-4">
+      <h4 class="text-xl font-bold">Elementos del Expediente</h4><button id="btn-agregar-elemento" class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg text-sm font-semibold"> + Agregar Elemento </button>
+     </div>
+     <div id="detalle-elementos-list" class="space-y-4"><!-- Elementos will be listed here -->
+     </div>
+    </div><!-- Actuaciones -->
+    <div class="mb-6">
+     <h4 class="text-xl font-bold mb-4">Actuaciones</h4>
+     <div id="detalle-actuaciones" class="space-y-6"><!-- Actuaciones will be listed here -->
+     </div>
+    </div><!-- Conclusion -->
+    <div class="mb-6">
+     <h4 class="text-xl font-bold mb-4">Conclusión del Expediente</h4>
+     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div><label for="detalle-conclusion" class="block text-sm font-semibold mb-2">Tipo de Conclusión</label> <select id="detalle-conclusion" class="w-full"> <option value="">Pendiente</option> <option value="comparecencia">Comparecencia</option> <option value="cedula">Cédula de Notificación</option> <option value="baja">Baja</option> <option value="imposible">Imposible de Notificar</option> </select>
+      </div>
+      <div><label for="detalle-fecha-conclusion" class="block text-sm font-semibold mb-2">Fecha de Conclusión</label> <input type="date" id="detalle-fecha-conclusion" class="w-full">
+      </div>
+     </div><button id="btn-guardar-conclusion" class="btn-primary px-6 py-3 rounded-lg font-semibold mt-4"> Guardar Conclusión </button>
+    </div>
+   </div>
+  </div><!-- Modal: Agregar/Editar Usuario -->
+  <div id="modal-usuario" class="fixed inset-0 modal-overlay hidden items-center justify-center z-50" style="display: none;">
+   <div class="glass-effect rounded-2xl p-8 max-w-md w-full mx-4">
+    <h3 class="text-2xl font-bold mb-6" id="modal-usuario-title">Agregar Usuario</h3>
+    <form id="form-usuario">
+     <div class="mb-4"><label for="input-nombre-usuario" class="block text-sm font-semibold mb-2">Nombre Completo *</label> <input type="text" id="input-nombre-usuario" required class="w-full" placeholder="Ej: Juan Pérez López">
+     </div>
+     <div class="mb-4"><label for="input-usuario-login" class="block text-sm font-semibold mb-2">Usuario *</label> <input type="text" id="input-usuario-login" required class="w-full" placeholder="Ej: jperez">
+     </div>
+     <div class="mb-4"><label for="input-rol-usuario" class="block text-sm font-semibold mb-2">Rol *</label> <select id="input-rol-usuario" required class="w-full"> <option value="abogado">Abogado</option> <option value="admin">Administrador</option> </select>
+     </div>
+     <div class="mb-6" id="password-container"><label for="input-password-usuario" class="block text-sm font-semibold mb-2">Contraseña * (mínimo 6 caracteres)</label> <input type="password" id="input-password-usuario" minlength="6" class="w-full" placeholder="Contraseña">
+     </div>
+     <div class="flex justify-end gap-4"><button type="button" id="btn-cancelar-usuario" class="px-6 py-3 rounded-lg font-semibold bg-gray-600 hover:bg-gray-700"> Cancelar </button> <button type="submit" class="btn-primary px-6 py-3 rounded-lg font-semibold"> Guardar </button>
+     </div>
+    </form>
+   </div>
+  </div><!-- Modal: Restablecer Contraseña -->
+  <div id="modal-restablecer-password" class="fixed inset-0 modal-overlay hidden items-center justify-center z-50" style="display: none;">
+   <div class="glass-effect rounded-2xl p-8 max-w-md w-full mx-4">
+    <h3 class="text-2xl font-bold mb-6">Restablecer Contraseña</h3>
+    <form id="form-restablecer-password">
+     <div class="mb-4"><label for="restablecer-usuario" class="block text-sm font-semibold mb-2">Usuario</label> <input type="text" id="restablecer-usuario" readonly class="w-full opacity-75" style="cursor: not-allowed;">
+     </div>
+     <div class="mb-4"><label for="restablecer-password-nueva" class="block text-sm font-semibold mb-2">Nueva Contraseña * (mínimo 6 caracteres)</label> <input type="password" id="restablecer-password-nueva" required minlength="6" class="w-full" placeholder="Nueva contraseña">
+     </div>
+     <div class="mb-6"><label for="restablecer-password-confirmar" class="block text-sm font-semibold mb-2">Confirmar Contraseña *</label> <input type="password" id="restablecer-password-confirmar" required minlength="6" class="w-full" placeholder="Confirmar contraseña">
+     </div>
+     <div class="flex justify-end gap-4"><button type="button" id="btn-cancelar-restablecer" class="px-6 py-3 rounded-lg font-semibold bg-gray-600 hover:bg-gray-700"> Cancelar </button> <button type="submit" class="btn-primary px-6 py-3 rounded-lg font-semibold"> Restablecer </button>
+     </div>
+    </form>
+   </div>
+  </div><!-- Modal: Agregar Elemento -->
+  <div id="modal-agregar-elemento" class="fixed inset-0 modal-overlay hidden items-center justify-center z-50" style="display: none;">
+   <div class="glass-effect rounded-2xl p-8 max-w-md w-full mx-4">
+    <h3 class="text-2xl font-bold mb-6">Agregar Elemento</h3>
+    <form id="form-agregar-elemento">
+     <div class="mb-4"><label for="input-nuevo-empleado" class="block text-sm font-semibold mb-2">Número de Empleado *</label> <input type="text" id="input-nuevo-empleado" required class="w-full" placeholder="Ej: 12345">
+     </div>
+     <div class="mb-6"><label for="input-nueva-corporacion" class="block text-sm font-semibold mb-2">Corporación *</label> <select id="input-nueva-corporacion" required class="w-full"> <!-- Will be populated dynamically --> </select>
+     </div>
+     <div class="flex justify-end gap-4"><button type="button" id="btn-cancelar-elemento" class="px-6 py-3 rounded-lg font-semibold bg-gray-600 hover:bg-gray-700"> Cancelar </button> <button type="submit" class="btn-primary px-6 py-3 rounded-lg font-semibold"> Guardar </button>
+     </div>
+    </form>
+   </div>
+  </div><!-- Modal: Agregar Corporación -->
+  <div id="modal-corporacion" class="fixed inset-0 modal-overlay hidden items-center justify-center z-50" style="display: none;">
+   <div class="glass-effect rounded-2xl p-8 max-w-md w-full mx-4">
+    <h3 class="text-2xl font-bold mb-6">Agregar Corporación</h3>
+    <form id="form-corporacion">
+     <div class="mb-6"><label for="input-nombre-corporacion" class="block text-sm font-semibold mb-2">Nombre de Corporación *</label> <input type="text" id="input-nombre-corporacion" required class="w-full" placeholder="Ej: P.M">
+     </div>
+     <div class="flex justify-end gap-4"><button type="button" id="btn-cancelar-corporacion" class="px-6 py-3 rounded-lg font-semibold bg-gray-600 hover:bg-gray-700"> Cancelar </button> <button type="submit" class="btn-primary px-6 py-3 rounded-lg font-semibold"> Guardar </button>
+     </div>
+    </form>
+   </div>
+  </div>
+  <script>
+    // Global state
+    let allData = [];
+    let expedientes = [];
+    let usuarios = [];
+    let corporaciones = ['P.P', 'P.A', 'P.B.I'];
+    let currentExpediente = null;
+    let currentView = 'dashboard';
+    let currentUser = null;
+    let editingUserId = null;
+
+    const defaultConfig = {
+      titulo_sistema: 'JUD B',
+      nombre_area: 'Área JUD B',
+      primary_color: '#667eea',
+      secondary_color: '#764ba2',
+      background_color: '#1a1a2e',
+      text_color: '#ffffff',
+      accent_color: '#667eea'
+    };
+
+    // Initialize Element SDK
+    async function onConfigChange(config) {
+      const tituloSistema = config.titulo_sistema || defaultConfig.titulo_sistema;
+      const nombreArea = config.nombre_area || defaultConfig.nombre_area;
+
+      document.getElementById('titulo-sistema').textContent = tituloSistema;
+      document.getElementById('nombre-area').textContent = nombreArea;
+      document.getElementById('login-titulo').textContent = tituloSistema;
+    }
+
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig,
+        onConfigChange,
+        mapToCapabilities: (config) => ({
+          recolorables: [],
+          borderables: [],
+          fontEditable: undefined,
+          fontSizeable: undefined
+        }),
+        mapToEditPanelValues: (config) => new Map([
+          ['titulo_sistema', config.titulo_sistema || defaultConfig.titulo_sistema],
+          ['nombre_area', config.nombre_area || defaultConfig.nombre_area]
+        ])
+      });
+    }
+
+    // Toast notification system
+    function showToast(message, type = 'success') {
+      const toast = document.createElement('div');
+      toast.className = `toast toast-${type}`;
+      toast.textContent = message;
+      document.body.appendChild(toast);
+
+      setTimeout(() => {
+        toast.remove();
+      }, 3000);
+    }
+
+    // Simple hash function for passwords
+    function simpleHash(str) {
+      let hash = 0;
+      for (let i = 0; i < str.length; i++) {
+        const char = str.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash;
+      }
+      return hash.toString(36);
+    }
+
+    // Data SDK Handler
+    const dataHandler = {
+      onDataChanged(data) {
+        allData = data;
+        
+        expedientes = data.filter(item => item.tipo_registro === 'expediente');
+        usuarios = data.filter(item => item.tipo_registro === 'usuario');
+
+        if (currentUser) {
+          updateDashboard();
+          updateExpedientesList();
+          updatePendientesTurnarList();
+          updateReportesStats();
+          updateUsuariosList();
+          updateAbogadosTurnadoList();
+          updateCitatorios();
+        }
+      }
+    };
+
+    // Initialize Data SDK
+    async function initDataSDK() {
+      if (window.dataSdk) {
+        const result = await window.dataSdk.init(dataHandler);
+        if (result.isOk) {
+          await verificarUsuarioAdmin();
+        }
+      }
+    }
+
+    // Verificar y crear usuario administrador por defecto
+    async function verificarUsuarioAdmin() {
+      const adminExists = usuarios.some(u => u.usuario === 'admin');
+      
+      if (!adminExists) {
+        const adminUser = {
+          tipo_registro: 'usuario',
+          usuario: 'admin',
+          password: simpleHash('admin123'),
+          rol: 'admin',
+          nombre_completo: 'Administrador',
+          activo: true,
+          creado_en: new Date().toISOString()
+        };
+
+        const result = await window.dataSdk.create(adminUser);
+        if (!result.isOk) {
+          console.error('Error creating admin user');
+        }
+      }
+    }
+
+    // Check session on load
+    function checkSession() {
+      const sessionData = sessionStorage.getItem('currentUser');
+      if (sessionData) {
+        currentUser = JSON.parse(sessionData);
+        mostrarApp();
+      }
+    }
+
+    // Login
+    async function handleLogin(e) {
+      e.preventDefault();
+
+      const usuario = document.getElementById('login-usuario').value;
+      const password = document.getElementById('login-password').value;
+
+      const btnLogin = document.getElementById('btn-login');
+      const originalText = btnLogin.innerHTML;
+      btnLogin.innerHTML = '<div class="loading-spinner mx-auto"></div>';
+      btnLogin.disabled = true;
+
+      const user = usuarios.find(u => u.usuario === usuario);
+
+      if (!user) {
+        mostrarErrorLogin('Usuario no encontrado');
+        btnLogin.innerHTML = originalText;
+        btnLogin.disabled = false;
+        return;
+      }
+
+      if (!user.activo) {
+        mostrarErrorLogin('Usuario desactivado. Contacte al administrador');
+        btnLogin.innerHTML = originalText;
+        btnLogin.disabled = false;
+        return;
+      }
+
+      const hashedPassword = simpleHash(password);
+
+      if (user.password !== hashedPassword) {
+        mostrarErrorLogin('Contraseña incorrecta');
+        btnLogin.innerHTML = originalText;
+        btnLogin.disabled = false;
+        return;
+      }
+
+      currentUser = user;
+      sessionStorage.setItem('currentUser', JSON.stringify(user));
+
+      btnLogin.innerHTML = originalText;
+      btnLogin.disabled = false;
+
+      mostrarApp();
+      showToast(`Bienvenido ${user.nombre_completo}`, 'success');
+    }
+
+    function mostrarErrorLogin(mensaje) {
+      const errorDiv = document.getElementById('login-error');
+      errorDiv.textContent = mensaje;
+      errorDiv.classList.remove('hidden');
+
+      setTimeout(() => {
+        errorDiv.classList.add('hidden');
+      }, 5000);
+    }
+
+    function mostrarApp() {
+      document.getElementById('login-screen').classList.add('hidden');
+      document.getElementById('app').classList.remove('hidden');
+      document.getElementById('app').style.display = 'flex';
+
+      document.getElementById('usuario-nombre').textContent = currentUser.nombre_completo;
+      document.getElementById('usuario-rol').textContent = currentUser.rol === 'admin' ? 'Administrador' : 'Abogado';
+      
+      const avatar = currentUser.nombre_completo.charAt(0).toUpperCase();
+      document.getElementById('usuario-avatar').textContent = avatar;
+
+      // Configurar permisos según rol
+      if (currentUser.rol !== 'admin') {
+        document.getElementById('nav-turnado').style.display = 'none';
+        document.getElementById('nav-configuracion').style.display = 'none';
+      }
+
+      updateDashboard();
+      updateExpedientesList();
+    }
+
+    function cerrarSesion() {
+      currentUser = null;
+      sessionStorage.removeItem('currentUser');
+      
+      document.getElementById('app').classList.add('hidden');
+      document.getElementById('app').style.display = 'none';
+      document.getElementById('login-screen').classList.remove('hidden');
+      
+      document.getElementById('form-login').reset();
+      
+      switchView('dashboard');
+      
+      showToast('Sesión cerrada correctamente', 'success');
+    }
+
+    // Helper Functions
+    function getTipoFromNumero(numeroExpediente) {
+      const tipo = numeroExpediente.split('/')[0];
+      return tipo || '';
+    }
+
+    function getTipoLabel(tipo) {
+      const labels = {
+        'RH': 'Acta Administrativa',
+        'CHJ': 'Carpeta de Investigación',
+        'VG': 'Violencia de Género',
+        'SP': 'Sistema Penitenciario',
+        'CCC': 'Control y Confianza'
+      };
+      return labels[tipo] || tipo;
+    }
+
+    function calcularDiasHabiles(fechaInicio, fechaFin) {
+      let dias = 0;
+      let fecha = new Date(fechaInicio);
+      const fin = new Date(fechaFin);
+
+      while (fecha <= fin) {
+        const diaSemana = fecha.getDay();
+        if (diaSemana !== 0 && diaSemana !== 6) {
+          dias++;
+        }
+        fecha.setDate(fecha.getDate() + 1);
+      }
+
+      return dias;
+    }
+
+    function agregarDiasHabiles(fechaInicio, diasHabiles) {
+      let fecha = new Date(fechaInicio);
+      let diasAgregados = 0;
+
+      while (diasAgregados < diasHabiles) {
+        fecha.setDate(fecha.getDate() + 1);
+        const diaSemana = fecha.getDay();
+        if (diaSemana !== 0 && diaSemana !== 6) {
+          diasAgregados++;
+        }
+      }
+
+      return fecha;
+    }
+
+    function getEstadoExpediente(exp) {
+      if (exp.conclusion) return 'concluido';
+      if (!exp.abogado_asignado) return 'pendiente_turnar';
+      
+      const elementos = JSON.parse(exp.elementos || '[]');
+      const tieneActuaciones = elementos.some(el => {
+        const actuaciones = el.actuaciones || [];
+        return actuaciones.length > 0;
+      });
+
+      if (tieneActuaciones) {
+        const fechaLlegada = new Date(exp.fecha_llegada);
+        const fechaCaducidad = agregarDiasHabiles(fechaLlegada, 130);
+        const hoy = new Date();
+        const diasRestantes = calcularDiasHabiles(hoy, fechaCaducidad);
+
+        if (diasRestantes <= 10) {
+          return 'proximo_caducar';
+        }
+
+        return 'en_proceso';
+      }
+
+      return 'asignado';
+    }
+
+    function formatDate(dateString) {
+      if (!dateString) return '-';
+      const date = new Date(dateString);
+      return date.toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' });
+    }
+
+    function getExpedientesVisibles() {
+      if (currentUser.rol === 'admin') {
+        return expedientes;
+      } else {
+        return expedientes.filter(exp => exp.abogado_asignado === currentUser.nombre_completo);
+      }
+    }
+
+    // Update Dashboard Metrics
+    function updateDashboard() {
+      const expedientesVisibles = getExpedientesVisibles();
+      
+      const totalExpedientes = expedientesVisibles.length;
+      const pendientes = expedientesVisibles.filter(exp => !exp.conclusion).length;
+      
+      const mesActual = new Date().getMonth();
+      const anoActual = new Date().getFullYear();
+      const notificadosMes = expedientesVisibles.filter(exp => {
+        if (!exp.fecha_conclusion) return false;
+        const fecha = new Date(exp.fecha_conclusion);
+        return fecha.getMonth() === mesActual && fecha.getFullYear() === anoActual && 
+               (exp.conclusion === 'comparecencia' || exp.conclusion === 'cedula');
+      }).length;
+
+      let proximosCaducar = 0;
+      let comparecencias = 0;
+      let cedulas = 0;
+
+      expedientesVisibles.forEach(exp => {
+        const estado = getEstadoExpediente(exp);
+        if (estado === 'proximo_caducar') proximosCaducar++;
+
+        if (exp.conclusion === 'comparecencia') comparecencias++;
+        if (exp.conclusion === 'cedula') cedulas++;
+      });
+
+      document.getElementById('metric-total').textContent = totalExpedientes;
+      document.getElementById('metric-pendientes').textContent = pendientes;
+      document.getElementById('metric-notificados').textContent = notificadosMes;
+      document.getElementById('metric-caducar').textContent = proximosCaducar;
+      document.getElementById('metric-comparecencias').textContent = comparecencias;
+      document.getElementById('metric-cedulas').textContent = cedulas;
+
+      updateActividadReciente();
+      updateActividadDia();
+    }
+
+    function updateActividadReciente() {
+      const container = document.getElementById('actividad-reciente');
+      const expedientesVisibles = getExpedientesVisibles();
+      
+      const expedientesRecientes = expedientesVisibles
+        .filter(exp => exp.creado_en)
+        .sort((a, b) => new Date(b.creado_en) - new Date(a.creado_en))
+        .slice(0, 10);
+
+      if (expedientesRecientes.length === 0) {
+        container.innerHTML = '<p class="text-sm opacity-75 text-center py-8">No hay actividad reciente</p>';
+        return;
+      }
+
+      container.innerHTML = expedientesRecientes.map(exp => {
+        const tipo = getTipoFromNumero(exp.numero_expediente);
+        return `
+          <div class="glass-effect rounded-lg p-3 flex items-center justify-between">
+            <div>
+              <p class="font-semibold text-sm">${exp.numero_expediente}</p>
+              <p class="text-xs opacity-75">${formatDate(exp.creado_en)}</p>
+            </div>
+            <span class="tag tag-${tipo.toLowerCase()}">${tipo}</span>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function updateActividadDia() {
+      const container = document.getElementById('actividad-dia');
+      const hoy = new Date().toISOString().split('T')[0];
+      const expedientesVisibles = getExpedientesVisibles();
+      
+      const citatoriosHoy = [];
+      
+      expedientesVisibles.forEach(exp => {
+        const elementos = JSON.parse(exp.elementos || '[]');
+        elementos.forEach(el => {
+          const actuaciones = el.actuaciones || [];
+          actuaciones.forEach(act => {
+            if (act.tipo === 'citatorio' && act.fecha_citatorio === hoy) {
+              citatoriosHoy.push({
+                expediente: exp.numero_expediente,
+                elemento: el.numero_empleado,
+                fecha: act.fecha_citatorio
+              });
+            }
+          });
+        });
+      });
+
+      if (citatoriosHoy.length === 0) {
+        container.innerHTML = '<p class="text-sm opacity-75 text-center py-8">No hay citatorios programados para hoy</p>';
+        return;
+      }
+
+      container.innerHTML = citatoriosHoy.map(cit => `
+        <div class="glass-effect rounded-lg p-3">
+          <p class="font-semibold text-sm">${cit.expediente}</p>
+          <p class="text-xs opacity-75">Empleado: ${cit.elemento}</p>
+          <p class="text-xs opacity-75">Citatorio programado</p>
+        </div>
+      `).join('');
+    }
+
+    // Update Expedientes List
+    function updateExpedientesList() {
+      const container = document.getElementById('expedientes-list');
+      
+      let filteredExpedientes = getExpedientesVisibles();
+
+      const filterEstado = document.getElementById('filter-estado').value;
+      const filterTipo = document.getElementById('filter-tipo').value;
+      const filterCorporacion = document.getElementById('filter-corporacion').value;
+      const filterAbogado = document.getElementById('filter-abogado').value;
+      const searchTerm = document.getElementById('search-expediente').value.toLowerCase();
+
+      if (filterEstado) {
+        filteredExpedientes = filteredExpedientes.filter(exp => getEstadoExpediente(exp) === filterEstado);
+      }
+
+      if (filterTipo) {
+        filteredExpedientes = filteredExpedientes.filter(exp => getTipoFromNumero(exp.numero_expediente) === filterTipo);
+      }
+
+      if (filterCorporacion) {
+        filteredExpedientes = filteredExpedientes.filter(exp => {
+          const elementos = JSON.parse(exp.elementos || '[]');
+          return elementos.some(el => el.corporacion === filterCorporacion);
+        });
+      }
+
+      if (filterAbogado && currentUser.rol === 'admin') {
+        filteredExpedientes = filteredExpedientes.filter(exp => exp.abogado_asignado === filterAbogado);
+      }
+
+      if (searchTerm) {
+        filteredExpedientes = filteredExpedientes.filter(exp => 
+          exp.numero_expediente.toLowerCase().includes(searchTerm)
+        );
+      }
+
+      if (filteredExpedientes.length === 0) {
+        container.innerHTML = '<p class="text-center py-12 opacity-75">No hay expedientes para mostrar</p>';
+        return;
+      }
+
+      container.innerHTML = filteredExpedientes.map(exp => {
+        const tipo = getTipoFromNumero(exp.numero_expediente);
+        const estado = getEstadoExpediente(exp);
+        const elementos = JSON.parse(exp.elementos || '[]');
+        
+        let estadoBadge = '';
+        if (estado === 'pendiente_turnar') estadoBadge = '<span class="badge" style="background: rgba(251, 146, 60, 0.2); color: #fdba74;">Pendiente Turnar</span>';
+        else if (estado === 'asignado') estadoBadge = '<span class="badge" style="background: rgba(59, 130, 246, 0.2); color: #93c5fd;">Asignado</span>';
+        else if (estado === 'en_proceso') estadoBadge = '<span class="badge" style="background: rgba(168, 85, 247, 0.2); color: #d8b4fe;">En Proceso</span>';
+        else if (estado === 'proximo_caducar') estadoBadge = '<span class="badge" style="background: rgba(239, 68, 68, 0.2); color: #fca5a5;">Próximo a Caducar</span>';
+        else if (estado === 'concluido') estadoBadge = '<span class="badge" style="background: rgba(34, 197, 94, 0.2); color: #86efac;">Concluido</span>';
+
+        return `
+          <div class="expediente-row rounded-lg p-4 cursor-pointer" data-id="${exp.__backendId}">
+            <div class="flex items-center justify-between">
+              <div class="flex-1">
+                <div class="flex items-center gap-3 mb-2">
+                  <h4 class="font-bold text-lg">${exp.numero_expediente}</h4>
+                  <span class="tag tag-${tipo.toLowerCase()}">${tipo}</span>
+                  ${estadoBadge}
+                </div>
+                <div class="flex gap-6 text-sm opacity-75">
+                  <span>📅 Llegada: ${formatDate(exp.fecha_llegada)}</span>
+                  <span>👨‍⚖️ ${exp.abogado_asignado || 'Sin asignar'}</span>
+                  <span>👥 ${elementos.length} elemento(s)</span>
+                </div>
+              </div>
+              <button class="text-2xl hover:text-blue-400 transition">›</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      container.querySelectorAll('.expediente-row').forEach(row => {
+        row.addEventListener('click', () => {
+          const id = row.dataset.id;
+          const exp = expedientes.find(e => e.__backendId === id);
+          if (exp) openDetalleExpediente(exp);
+        });
+      });
+    }
+
+    // Update Pendientes por Turnar List
+    function updatePendientesTurnarList() {
+      const container = document.getElementById('pendientes-turnar-list');
+      const pendientes = expedientes.filter(exp => !exp.abogado_asignado);
+
+      document.getElementById('count-pendientes').textContent = pendientes.length;
+
+      if (pendientes.length === 0) {
+        container.innerHTML = '<p class="text-center py-8 opacity-75 text-sm">No hay expedientes pendientes por turnar</p>';
+        return;
+      }
+
+      container.innerHTML = pendientes.map(exp => {
+        const tipo = getTipoFromNumero(exp.numero_expediente);
+        return `
+          <div class="glass-effect rounded-lg p-3" data-id="${exp.__backendId}">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="font-semibold text-sm">${exp.numero_expediente}</p>
+                <p class="text-xs opacity-75">${formatDate(exp.fecha_llegada)}</p>
+              </div>
+              <span class="tag tag-${tipo.toLowerCase()}">${tipo}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Update Abogados Turnado List
+    function updateAbogadosTurnadoList() {
+      const container = document.getElementById('abogados-turnado-list');
+      const abogados = usuarios.filter(u => u.rol === 'abogado' && u.activo);
+
+      if (abogados.length === 0) {
+        container.innerHTML = '<p class="text-center py-8 opacity-75 text-sm">No hay abogados registrados</p>';
+        return;
+      }
+
+      container.innerHTML = abogados.map(abog => {
+        const expedientesAsignados = expedientes.filter(exp => exp.abogado_asignado === abog.nombre_completo).length;
+        
+        return `
+          <div class="glass-effect rounded-lg p-4">
+            <div class="flex items-center justify-between mb-2">
+              <div class="flex items-center">
+                <input type="checkbox" class="checkbox-custom mr-3 abogado-checkbox" data-nombre="${abog.nombre_completo}">
+                <div>
+                  <p class="font-semibold">${abog.nombre_completo}</p>
+                  <p class="text-xs opacity-75">@${abog.usuario}</p>
+                </div>
+              </div>
+              <span class="badge" style="background: rgba(102, 126, 234, 0.2); color: #93c5fd;">${expedientesAsignados} exp.</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: ${Math.min(expedientesAsignados * 10, 100)}%"></div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Update Citatorios
+    function updateCitatorios() {
+      const expedientesVisibles = getExpedientesVisibles();
+      let todosCitatorios = [];
+
+      expedientesVisibles.forEach(exp => {
+        const elementos = JSON.parse(exp.elementos || '[]');
+        elementos.forEach((el, elIdx) => {
+          const actuaciones = el.actuaciones || [];
+          actuaciones.forEach((act, actIdx) => {
+            if (act.tipo === 'citatorio' && act.fecha_citatorio) {
+              todosCitatorios.push({
+                expediente: exp.numero_expediente,
+                expedienteId: exp.__backendId,
+                abogado: exp.abogado_asignado,
+                elemento: el.numero_empleado,
+                corporacion: el.corporacion,
+                fecha_citatorio: act.fecha_citatorio,
+                fecha_envio: act.fecha_envio,
+                fecha_respuesta: act.fecha_respuesta,
+                se_presento: act.se_presento,
+                observaciones: act.observaciones,
+                elementoIdx: elIdx,
+                actuacionIdx: actIdx
+              });
+            }
+          });
+        });
+      });
+
+      // Aplicar filtros
+      const filterInicio = document.getElementById('citatorio-filter-inicio').value;
+      const filterFin = document.getElementById('citatorio-filter-fin').value;
+      const filterEstado = document.getElementById('citatorio-filter-estado').value;
+      const filterAbogado = document.getElementById('citatorio-filter-abogado').value;
+
+      let citatoriosFiltrados = todosCitatorios;
+
+      if (filterInicio) {
+        citatoriosFiltrados = citatoriosFiltrados.filter(c => c.fecha_citatorio >= filterInicio);
+      }
+      if (filterFin) {
+        citatoriosFiltrados = citatoriosFiltrados.filter(c => c.fecha_citatorio <= filterFin);
+      }
+      if (filterEstado === 'pendiente') {
+        citatoriosFiltrados = citatoriosFiltrados.filter(c => c.se_presento === undefined);
+      } else if (filterEstado === 'se_presento') {
+        citatoriosFiltrados = citatoriosFiltrados.filter(c => c.se_presento === true);
+      } else if (filterEstado === 'no_se_presento') {
+        citatoriosFiltrados = citatoriosFiltrados.filter(c => c.se_presento === false);
+      }
+      if (filterAbogado) {
+        citatoriosFiltrados = citatoriosFiltrados.filter(c => c.abogado === filterAbogado);
+      }
+
+      // Ordenar por fecha
+      citatoriosFiltrados.sort((a, b) => new Date(a.fecha_citatorio) - new Date(b.fecha_citatorio));
+
+      // Actualizar métricas
+      const total = citatoriosFiltrados.length;
+      const pendientes = citatoriosFiltrados.filter(c => c.se_presento === undefined).length;
+      const sePresento = citatoriosFiltrados.filter(c => c.se_presento === true).length;
+      const noSePresento = citatoriosFiltrados.filter(c => c.se_presento === false).length;
+
+      document.getElementById('citatorio-metric-total').textContent = total;
+      document.getElementById('citatorio-metric-pendientes').textContent = pendientes;
+      document.getElementById('citatorio-metric-se-presento').textContent = sePresento;
+      document.getElementById('citatorio-metric-no-se-presento').textContent = noSePresento;
+
+      // Actualizar lista
+      const container = document.getElementById('citatorios-list');
+
+      if (citatoriosFiltrados.length === 0) {
+        container.innerHTML = '<p class="text-center py-12 opacity-75">No hay citatorios para mostrar</p>';
+        return;
+      }
+
+      container.innerHTML = citatoriosFiltrados.map(cit => {
+        const hoy = new Date().toISOString().split('T')[0];
+        const esHoy = cit.fecha_citatorio === hoy;
+        const tipo = getTipoFromNumero(cit.expediente);
+        
+        let estadoBadge = '';
+        if (cit.se_presento === true) {
+          estadoBadge = '<span class="badge" style="background: rgba(34, 197, 94, 0.2); color: #86efac;">✅ Se Presentó</span>';
+        } else if (cit.se_presento === false) {
+          estadoBadge = '<span class="badge" style="background: rgba(239, 68, 68, 0.2); color: #fca5a5;">❌ No Se Presentó</span>';
+        } else {
+          estadoBadge = '<span class="badge" style="background: rgba(251, 146, 60, 0.2); color: #fdba74;">⏳ Pendiente</span>';
+        }
+
+        return `
+          <div class="glass-effect rounded-lg p-4 ${esHoy ? 'border-2 border-yellow-400' : ''}">
+            <div class="flex items-start justify-between">
+              <div class="flex-1">
+                <div class="flex items-center gap-3 mb-2">
+                  ${esHoy ? '<span class="text-xl">🔔</span>' : ''}
+                  <h4 class="font-bold text-lg">${cit.expediente}</h4>
+                  <span class="tag tag-${tipo.toLowerCase()}">${tipo}</span>
+                  ${estadoBadge}
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-3">
+                  <div>
+                    <p class="opacity-75 text-xs">Fecha Citatorio</p>
+                    <p class="font-semibold">${formatDate(cit.fecha_citatorio)}</p>
+                  </div>
+                  <div>
+                    <p class="opacity-75 text-xs">Elemento</p>
+                    <p class="font-semibold">${cit.elemento || 'N/A'}</p>
+                  </div>
+                  <div>
+                    <p class="opacity-75 text-xs">Corporación</p>
+                    <p class="font-semibold">${cit.corporacion || 'N/A'}</p>
+                  </div>
+                  <div>
+                    <p class="opacity-75 text-xs">Abogado</p>
+                    <p class="font-semibold">${cit.abogado || 'Sin asignar'}</p>
+                  </div>
+                </div>
+                ${cit.observaciones ? `<p class="text-xs opacity-75 mb-2">📝 ${cit.observaciones}</p>` : ''}
+                ${cit.se_presento === undefined ? `
+                  <div class="flex gap-2 mt-3">
+                    <button onclick="marcarAsistenciaCitatorio('${cit.expedienteId}', ${cit.elementoIdx}, ${cit.actuacionIdx}, true)" 
+                            class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg text-sm font-semibold">
+                      ✅ Se Presentó
+                    </button>
+                    <button onclick="marcarAsistenciaCitatorio('${cit.expedienteId}', ${cit.elementoIdx}, ${cit.actuacionIdx}, false)" 
+                            class="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg text-sm font-semibold">
+                      ❌ No Se Presentó
+                    </button>
+                  </div>
+                ` : ''}
+              </div>
+              <button onclick="verExpedienteDesdeView('${cit.expedienteId}')" class="text-2xl hover:text-blue-400 transition ml-4">
+                👁️
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      // Actualizar filtro de abogados
+      const filterAbogadoSelect = document.getElementById('citatorio-filter-abogado');
+      const abogadosUnicos = [...new Set(todosCitatorios.map(c => c.abogado).filter(Boolean))];
+      filterAbogadoSelect.innerHTML = '<option value="">Todos</option>' + 
+        abogadosUnicos.map(abog => `<option value="${abog}">${abog}</option>`).join('');
+    }
+
+    async function marcarAsistenciaCitatorio(expedienteId, elementoIdx, actuacionIdx, sePresento) {
+      const exp = expedientes.find(e => e.__backendId === expedienteId);
+      if (!exp) return;
+
+      const elementos = JSON.parse(exp.elementos || '[]');
+      const elemento = elementos[elementoIdx];
+      
+      if (!elemento || !elemento.actuaciones || !elemento.actuaciones[actuacionIdx]) {
+        showToast('Error: No se encontró la actuación', 'error');
+        return;
+      }
+
+      elemento.actuaciones[actuacionIdx].se_presento = sePresento;
+      
+      if (!elemento.actuaciones[actuacionIdx].fecha_respuesta) {
+        elemento.actuaciones[actuacionIdx].fecha_respuesta = new Date().toISOString().split('T')[0];
+      }
+
+      elementos[elementoIdx] = elemento;
+
+      const updatedExp = {
+        ...exp,
+        elementos: JSON.stringify(elementos)
+      };
+
+      const result = await window.dataSdk.update(updatedExp);
+
+      if (result.isOk) {
+        showToast(sePresento ? 'Marcado como presentado' : 'Marcado como no presentado', 'success');
+        updateCitatorios();
+      } else {
+        showToast('Error al actualizar el citatorio', 'error');
+      }
+    }
+
+    function verExpedienteDesdeView(expedienteId) {
+      const exp = expedientes.find(e => e.__backendId === expedienteId);
+      if (exp) {
+        openDetalleExpediente(exp);
+      }
+    }
+
+    // Update Reportes Stats
+    function updateReportesStats() {
+      const expedientesVisibles = getExpedientesVisibles();
+
+      const statsTipo = document.getElementById('stats-tipo');
+      const tiposCounts = {
+        'RH': 0, 'CHJ': 0, 'VG': 0, 'SP': 0, 'CCC': 0
+      };
+
+      expedientesVisibles.forEach(exp => {
+        const tipo = getTipoFromNumero(exp.numero_expediente);
+        if (tiposCounts.hasOwnProperty(tipo)) {
+          tiposCounts[tipo]++;
+        }
+      });
+
+      statsTipo.innerHTML = Object.entries(tiposCounts).map(([tipo, count]) => `
+        <div class="flex items-center justify-between glass-effect rounded-lg p-3">
+          <span class="font-semibold">${tipo} - ${getTipoLabel(tipo)}</span>
+          <span class="badge" style="background: rgba(102, 126, 234, 0.2); color: #93c5fd;">${count}</span>
+        </div>
+      `).join('');
+
+      const statsEstado = document.getElementById('stats-estado');
+      const estadosCounts = {
+        'pendiente_turnar': 0,
+        'asignado': 0,
+        'en_proceso': 0,
+        'proximo_caducar': 0,
+        'concluido': 0
+      };
+
+      expedientesVisibles.forEach(exp => {
+        const estado = getEstadoExpediente(exp);
+        if (estadosCounts.hasOwnProperty(estado)) {
+          estadosCounts[estado]++;
+        }
+      });
+
+      const estadoLabels = {
+        'pendiente_turnar': 'Pendiente Turnar',
+        'asignado': 'Asignado',
+        'en_proceso': 'En Proceso',
+        'proximo_caducar': 'Próximo a Caducar',
+        'concluido': 'Concluido'
+      };
+
+      statsEstado.innerHTML = Object.entries(estadosCounts).map(([estado, count]) => `
+        <div class="flex items-center justify-between glass-effect rounded-lg p-3">
+          <span class="font-semibold">${estadoLabels[estado]}</span>
+          <span class="badge" style="background: rgba(102, 126, 234, 0.2); color: #93c5fd;">${count}</span>
+        </div>
+      `).join('');
+    }
+
+    // Update Usuarios List in Config
+    function updateUsuariosList() {
+      const container = document.getElementById('usuarios-list');
+
+      if (usuarios.length === 0) {
+        container.innerHTML = '<p class="text-center py-8 opacity-75 text-sm">No hay usuarios registrados</p>';
+        return;
+      }
+
+      container.innerHTML = usuarios.map(user => {
+        const rolBadge = user.rol === 'admin' ? 
+          '<span class="badge" style="background: rgba(239, 68, 68, 0.2); color: #fca5a5;">Admin</span>' :
+          '<span class="badge" style="background: rgba(59, 130, 246, 0.2); color: #93c5fd;">Abogado</span>';
+        
+        const estadoBadge = user.activo ? 
+          '<span class="badge" style="background: rgba(34, 197, 94, 0.2); color: #86efac;">✓ Activo</span>' :
+          '<span class="badge" style="background: rgba(239, 68, 68, 0.2); color: #fca5a5;">✗ Desactivado</span>';
+
+        const esMiUsuario = currentUser && currentUser.__backendId === user.__backendId;
+
+        return `
+          <div class="glass-effect rounded-lg p-3 flex items-center justify-between">
+            <div class="flex-1">
+              <div class="flex items-center gap-2 mb-1">
+                <p class="font-semibold">${user.nombre_completo}</p>
+                ${rolBadge}
+                ${estadoBadge}
+              </div>
+              <p class="text-xs opacity-75">@${user.usuario}</p>
+            </div>
+            <div class="flex gap-2">
+              <button class="px-3 py-1 bg-blue-600 hover:bg-blue-700 rounded text-xs font-semibold" onclick="editarUsuario('${user.__backendId}')">
+                ✏️ Editar
+              </button>
+              <button class="px-3 py-1 bg-purple-600 hover:bg-purple-700 rounded text-xs font-semibold" onclick="restablecerPassword('${user.__backendId}')">
+                🔑 Contraseña
+              </button>
+              ${!esMiUsuario ? `
+                <button class="px-3 py-1 ${user.activo ? 'bg-orange-600 hover:bg-orange-700' : 'bg-green-600 hover:bg-green-700'} rounded text-xs font-semibold" 
+                        onclick="toggleUsuarioActivo('${user.__backendId}')">
+                  ${user.activo ? '⏸️ Desactivar' : '▶️ Activar'}
+                </button>
+              ` : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      const filterAbogado = document.getElementById('filter-abogado');
+      const abogados = usuarios.filter(u => u.rol === 'abogado');
+      filterAbogado.innerHTML = '<option value="">Todos</option>' + 
+        abogados.map(abog => `<option value="${abog.nombre_completo}">${abog.nombre_completo}</option>`).join('');
+    }
+
+    // Update Corporaciones List
+    function updateCorporacionesList() {
+      const container = document.getElementById('corporaciones-list');
+      
+      container.innerHTML = corporaciones.map(corp => `
+        <div class="glass-effect rounded-lg p-2 flex items-center justify-between">
+          <span class="font-semibold text-sm">${corp}</span>
+          <button class="text-red-400 hover:text-red-300 text-xs font-semibold" onclick="eliminarCorporacion('${corp}')">
+            Eliminar
+          </button>
+        </div>
+      `).join('');
+
+      // Update corporaciones select in elemento modal
+      const selectCorp = document.getElementById('input-nueva-corporacion');
+      if (selectCorp) {
+        selectCorp.innerHTML = corporaciones.map(corp => `<option value="${corp}">${corp}</option>`).join('');
+      }
+    }
+
+    // Modal Functions - Expediente Masivo (Turnado)
+    function openModalExpedienteMasivo() {
+      if (currentUser.rol !== 'admin') {
+        showToast('Solo el administrador puede crear expedientes', 'error');
+        return;
+      }
+
+      const modal = document.getElementById('modal-expediente-masivo');
+      modal.classList.remove('hidden');
+      modal.style.display = 'flex';
+      
+      document.getElementById('input-fecha-llegada-masivo').valueAsDate = new Date();
+    }
+
+    function closeModalExpedienteMasivo() {
+      const modal = document.getElementById('modal-expediente-masivo');
+      modal.classList.add('hidden');
+      modal.style.display = 'none';
+      document.getElementById('form-expediente-masivo').reset();
+    }
+
+    async function guardarExpedientesMasivos(e) {
+      e.preventDefault();
+
+      const textoExpedientes = document.getElementById('input-expedientes-masivos').value;
+      const fechaLlegada = document.getElementById('input-fecha-llegada-masivo').value;
+
+      const lineas = textoExpedientes.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+
+      if (lineas.length === 0) {
+        showToast('Por favor ingrese al menos un número de expediente', 'error');
+        return;
+      }
+
+      if (expedientes.length + lineas.length > 999) {
+        showToast(`No se pueden agregar ${lineas.length} expedientes. Límite de 999 alcanzado.`, 'error');
+        return;
+      }
+
+      const btnGuardar = document.getElementById('btn-guardar-expediente-masivo');
+      const originalText = btnGuardar.innerHTML;
+      btnGuardar.innerHTML = '<div class="loading-spinner mx-auto"></div>';
+      btnGuardar.disabled = true;
+
+      let exitosos = 0;
+      let fallidos = 0;
+
+      for (const numeroExpediente of lineas) {
+        const expediente = {
+          tipo_registro: 'expediente',
+          numero_expediente: numeroExpediente,
+          fecha_llegada: fechaLlegada,
+          fecha_asignacion: '',
+          abogado_asignado: '',
+          elementos: JSON.stringify([]),
+          estado: 'pendiente_turnar',
+          conclusion: '',
+          fecha_conclusion: '',
+          creado_en: new Date().toISOString()
+        };
+
+        const result = await window.dataSdk.create(expediente);
+
+        if (result.isOk) {
+          exitosos++;
+        } else {
+          fallidos++;
+        }
+      }
+
+      btnGuardar.innerHTML = originalText;
+      btnGuardar.disabled = false;
+
+      closeModalExpedienteMasivo();
+      
+      if (fallidos === 0) {
+        showToast(`${exitosos} expediente(s) creado(s) exitosamente`, 'success');
+      } else {
+        showToast(`${exitosos} exitosos, ${fallidos} fallidos`, 'warning');
+      }
+    }
+
+    // Modal Functions - Detalle Expediente
+    function openDetalleExpediente(exp) {
+      currentExpediente = exp;
+      const modal = document.getElementById('modal-detalle-expediente');
+      modal.classList.remove('hidden');
+      modal.style.display = 'flex';
+
+      document.getElementById('detalle-numero-expediente').textContent = exp.numero_expediente;
+      document.getElementById('detalle-fecha-llegada').textContent = formatDate(exp.fecha_llegada);
+      document.getElementById('detalle-fecha-asignacion').textContent = formatDate(exp.fecha_asignacion) || 'Sin asignar';
+      document.getElementById('detalle-abogado').textContent = exp.abogado_asignado || 'Sin asignar';
+
+      const tipo = getTipoFromNumero(exp.numero_expediente);
+      document.getElementById('detalle-tags').innerHTML = `
+        <span class="tag tag-${tipo.toLowerCase()}">${tipo}</span>
+        <span class="badge" style="background: rgba(102, 126, 234, 0.2); color: #93c5fd;">${getEstadoExpediente(exp)}</span>
+      `;
+
+      renderDetalleElementos(exp);
+      renderDetalleActuaciones(exp);
+
+      document.getElementById('detalle-conclusion').value = exp.conclusion || '';
+      document.getElementById('detalle-fecha-conclusion').value = exp.fecha_conclusion || '';
+    }
+
+    function renderDetalleElementos(exp) {
+      const container = document.getElementById('detalle-elementos-list');
+      const elementos = JSON.parse(exp.elementos || '[]');
+
+      if (elementos.length === 0) {
+        container.innerHTML = '<p class="text-center py-4 opacity-75 text-sm">No hay elementos agregados. Haga clic en "+ Agregar Elemento"</p>';
+        return;
+      }
+
+      container.innerHTML = elementos.map((el, idx) => `
+        <div class="glass-effect rounded-lg p-4">
+          <h5 class="font-semibold mb-2">Elemento ${idx + 1}</h5>
+          <div class="grid grid-cols-2 gap-4 text-sm">
+            <div>
+              <p class="opacity-75 mb-1">Número de Empleado</p>
+              <p class="font-semibold">${el.numero_empleado || 'N/A'}</p>
+            </div>
+            <div>
+              <p class="opacity-75 mb-1">Corporación</p>
+              <p class="font-semibold">${el.corporacion || 'N/A'}</p>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderDetalleActuaciones(exp) {
+      const container = document.getElementById('detalle-actuaciones');
+      const elementos = JSON.parse(exp.elementos || '[]');
+
+      if (elementos.length === 0) {
+        container.innerHTML = '<p class="text-center py-4 opacity-75 text-sm">Primero agregue elementos al expediente</p>';
+        return;
+      }
+
+      const actuacionesTipos = [
+        { id: 'cedula', label: 'Cédula de Notificación' },
+        { id: 'dgap', label: 'DGAP' },
+        { id: 'exhorto', label: 'Exhorto' },
+        { id: 'citatorio', label: 'Citatorio' },
+        { id: 'estatus_laboral', label: 'Estatus Laboral' },
+        { id: 'oficio_superior', label: 'Oficio Superior Jerárquico' }
+      ];
+
+      container.innerHTML = elementos.map((el, elIdx) => `
+        <div class="glass-effect rounded-lg p-4">
+          <h5 class="font-semibold mb-4">Actuaciones - Elemento ${elIdx + 1} (${el.numero_empleado})</h5>
+          
+          ${actuacionesTipos.map(tipo => {
+            const actuacionesTipo = (el.actuaciones || []).filter(a => a.tipo === tipo.id);
+            
+            return `
+              <div class="mb-4">
+                <div class="flex items-center justify-between mb-2">
+                  <label class="font-semibold text-sm">${tipo.label}</label>
+                  <button class="px-3 py-1 bg-blue-600 hover:bg-blue-700 rounded text-xs font-semibold" 
+                          onclick="agregarActuacion('${exp.__backendId}', ${elIdx}, '${tipo.id}')">
+                    + Agregar
+                  </button>
+                </div>
+                
+                ${actuacionesTipo.length > 0 ? `
+                  <div class="space-y-2 ml-4">
+                    ${actuacionesTipo.map((act, actIdx) => `
+                      <div class="glass-effect rounded p-2 text-xs">
+                        <p><strong>Envío:</strong> ${formatDate(act.fecha_envio) || 'N/A'}</p>
+                        <p><strong>Respuesta:</strong> ${formatDate(act.fecha_respuesta) || 'Pendiente'}</p>
+                        <p><strong>Resultado:</strong> ${act.resultado || 'N/A'}</p>
+                        ${act.observaciones ? `<p><strong>Obs:</strong> ${act.observaciones}</p>` : ''}
+                        ${tipo.id === 'citatorio' && act.fecha_citatorio ? `<p><strong>Fecha Citatorio:</strong> ${formatDate(act.fecha_citatorio)}</p>` : ''}
+                        ${tipo.id === 'citatorio' && act.se_presento !== undefined ? `<p><strong>Se presentó:</strong> ${act.se_presento ? 'Sí' : 'No'}</p>` : ''}
+                      </div>
+                    `).join('')}
+                  </div>
+                ` : ''}
+              </div>
+            `;
+          }).join('')}
+        </div>
+      `).join('');
+    }
+
+    async function agregarActuacion(expedienteId, elementoIdx, tipoActuacion) {
+      const exp = expedientes.find(e => e.__backendId === expedienteId);
+      if (!exp) return;
+
+      const fechaEnvioInput = document.createElement('input');
+      fechaEnvioInput.type = 'date';
+      fechaEnvioInput.className = 'w-full mb-2';
+      
+      const modalContent = document.createElement('div');
+      modalContent.className = 'fixed inset-0 modal-overlay flex items-center justify-center z-50';
+      modalContent.innerHTML = `
+        <div class="glass-effect rounded-2xl p-8 max-w-md w-full mx-4">
+          <h3 class="text-xl font-bold mb-4">Agregar ${tipoActuacion}</h3>
+          <form id="form-actuacion">
+            <div class="mb-3">
+              <label for="act-fecha-envio" class="block text-sm font-semibold mb-2">Fecha de Envío *</label>
+              <input type="date" id="act-fecha-envio" required class="w-full">
+            </div>
+            <div class="mb-3">
+              <label for="act-fecha-respuesta" class="block text-sm font-semibold mb-2">Fecha de Respuesta</label>
+              <input type="date" id="act-fecha-respuesta" class="w-full">
+            </div>
+            <div class="mb-3">
+              <label for="act-resultado" class="block text-sm font-semibold mb-2">Resultado</label>
+              <select id="act-resultado" class="w-full">
+                <option value="">Pendiente</option>
+                <option value="exitosa">Exitosa</option>
+                <option value="no_exitosa">No Exitosa</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="act-observaciones" class="block text-sm font-semibold mb-2">Observaciones</label>
+              <textarea id="act-observaciones" class="w-full" rows="2"></textarea>
+            </div>
+            ${tipoActuacion === 'citatorio' ? `
+              <div class="mb-3">
+                <label for="act-fecha-citatorio" class="block text-sm font-semibold mb-2">Fecha del Citatorio</label>
+                <input type="date" id="act-fecha-citatorio" class="w-full">
+              </div>
+              <div class="mb-3" id="se-presento-container" style="display: none;">
+                <label for="act-se-presento" class="block text-sm font-semibold mb-2">¿Se presentó?</label>
+                <select id="act-se-presento" class="w-full">
+                  <option value="">Pendiente</option>
+                  <option value="si">Sí</option>
+                  <option value="no">No</option>
+                </select>
+              </div>
+            ` : ''}
+            <div class="flex justify-end gap-4 mt-4">
+              <button type="button" class="px-4 py-2 rounded-lg font-semibold bg-gray-600 hover:bg-gray-700" onclick="this.closest('.modal-overlay').remove()">
+                Cancelar
+              </button>
+              <button type="submit" class="btn-primary px-4 py-2 rounded-lg font-semibold">
+                Guardar
+              </button>
+            </div>
+          </form>
+        </div>
+      `;
+
+      document.body.appendChild(modalContent);
+
+      if (tipoActuacion === 'citatorio') {
+        const fechaRespuesta = modalContent.querySelector('#act-fecha-respuesta');
+        const sePresentoContainer = modalContent.querySelector('#se-presento-container');
+        fechaRespuesta.addEventListener('change', () => {
+          if (fechaRespuesta.value) {
+            sePresentoContainer.style.display = 'block';
+          } else {
+            sePresentoContainer.style.display = 'none';
+          }
+        });
+      }
+
+      modalContent.querySelector('#form-actuacion').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const fechaEnvio = modalContent.querySelector('#act-fecha-envio').value;
+        const fechaRespuesta = modalContent.querySelector('#act-fecha-respuesta').value;
+        const resultado = modalContent.querySelector('#act-resultado').value;
+        const observaciones = modalContent.querySelector('#act-observaciones').value;
+
+        const elementos = JSON.parse(exp.elementos || '[]');
+        const elemento = elementos[elementoIdx];
+
+        if (!elemento.actuaciones) {
+          elemento.actuaciones = [];
+        }
+
+        const nuevaActuacion = {
+          tipo: tipoActuacion,
+          fecha_envio: fechaEnvio,
+          fecha_respuesta: fechaRespuesta || '',
+          resultado: resultado || '',
+          observaciones: observaciones || ''
+        };
+
+        if (tipoActuacion === 'citatorio') {
+          const fechaCitatorio = modalContent.querySelector('#act-fecha-citatorio').value;
+          const sePresento = modalContent.querySelector('#act-se-presento')?.value;
+          
+          nuevaActuacion.fecha_citatorio = fechaCitatorio;
+          if (sePresento === 'si') {
+            nuevaActuacion.se_presento = true;
+          } else if (sePresento === 'no') {
+            nuevaActuacion.se_presento = false;
+          }
+        }
+
+        elemento.actuaciones.push(nuevaActuacion);
+        elementos[elementoIdx] = elemento;
+
+        const updatedExp = {
+          ...exp,
+          elementos: JSON.stringify(elementos)
+        };
+
+        const result = await window.dataSdk.update(updatedExp);
+        
+        if (result.isOk) {
+          renderDetalleActuaciones(updatedExp);
+          modalContent.remove();
+          showToast('Actuación agregada exitosamente', 'success');
+        } else {
+          showToast('Error al agregar actuación', 'error');
+        }
+      });
+    }
+
+    async function guardarConclusion() {
+      if (!currentExpediente) return;
+
+      const conclusion = document.getElementById('detalle-conclusion').value;
+      const fechaConclusion = document.getElementById('detalle-fecha-conclusion').value;
+
+      if (!conclusion || !fechaConclusion) {
+        showToast('Por favor complete todos los campos de conclusión', 'error');
+        return;
+      }
+
+      const btnGuardar = document.getElementById('btn-guardar-conclusion');
+      const originalText = btnGuardar.innerHTML;
+      btnGuardar.innerHTML = '<div class="loading-spinner mx-auto"></div>';
+      btnGuardar.disabled = true;
+
+      const updatedExp = {
+        ...currentExpediente,
+        conclusion: conclusion,
+        fecha_conclusion: fechaConclusion
+      };
+
+      const result = await window.dataSdk.update(updatedExp);
+
+      if (result.isOk) {
+        showToast('Conclusión guardada exitosamente', 'success');
+      } else {
+        showToast('Error al guardar la conclusión', 'error');
+      }
+
+      btnGuardar.innerHTML = originalText;
+      btnGuardar.disabled = false;
+    }
+
+    function closeDetalleExpediente() {
+      const modal = document.getElementById('modal-detalle-expediente');
+      modal.classList.add('hidden');
+      modal.style.display = 'none';
+      currentExpediente = null;
+    }
+
+    // Modal Functions - Agregar Elemento
+    function openModalAgregarElemento() {
+      if (!currentExpediente) return;
+
+      const modal = document.getElementById('modal-agregar-elemento');
+      modal.classList.remove('hidden');
+      modal.style.display = 'flex';
+
+      // Populate corporaciones
+      const select = document.getElementById('input-nueva-corporacion');
+      select.innerHTML = corporaciones.map(corp => `<option value="${corp}">${corp}</option>`).join('');
+    }
+
+    function closeModalAgregarElemento() {
+      const modal = document.getElementById('modal-agregar-elemento');
+      modal.classList.add('hidden');
+      modal.style.display = 'none';
+      document.getElementById('form-agregar-elemento').reset();
+    }
+
+    async function guardarNuevoElemento(e) {
+      e.preventDefault();
+
+      if (!currentExpediente) return;
+
+      const numeroEmpleado = document.getElementById('input-nuevo-empleado').value;
+      const corporacion = document.getElementById('input-nueva-corporacion').value;
+
+      const elementos = JSON.parse(currentExpediente.elementos || '[]');
+
+      elementos.push({
+        numero_empleado: numeroEmpleado,
+        corporacion: corporacion,
+        actuaciones: []
+      });
+
+      const updatedExp = {
+        ...currentExpediente,
+        elementos: JSON.stringify(elementos)
+      };
+
+      const result = await window.dataSdk.update(updatedExp);
+
+      if (result.isOk) {
+        currentExpediente = updatedExp;
+        renderDetalleElementos(updatedExp);
+        renderDetalleActuaciones(updatedExp);
+        closeModalAgregarElemento();
+        showToast('Elemento agregado exitosamente', 'success');
+      } else {
+        showToast('Error al agregar elemento', 'error');
+      }
+    }
+
+    // Modal Functions - Usuario
+    function openModalUsuario() {
+      editingUserId = null;
+      document.getElementById('modal-usuario-title').textContent = 'Agregar Usuario';
+      document.getElementById('input-nombre-usuario').value = '';
+      document.getElementById('input-usuario-login').value = '';
+      document.getElementById('input-rol-usuario').value = 'abogado';
+      document.getElementById('input-password-usuario').value = '';
+      document.getElementById('input-password-usuario').required = true;
+      document.getElementById('password-container').style.display = 'block';
+
+      const modal = document.getElementById('modal-usuario');
+      modal.classList.remove('hidden');
+      modal.style.display = 'flex';
+    }
+
+    function editarUsuario(userId) {
+      const user = usuarios.find(u => u.__backendId === userId);
+      if (!user) return;
+
+      editingUserId = userId;
+      document.getElementById('modal-usuario-title').textContent = 'Editar Usuario';
+      document.getElementById('input-nombre-usuario').value = user.nombre_completo;
+      document.getElementById('input-usuario-login').value = user.usuario;
+      document.getElementById('input-rol-usuario').value = user.rol;
+      document.getElementById('input-password-usuario').required = false;
+      document.getElementById('password-container').style.display = 'none';
+
+      const modal = document.getElementById('modal-usuario');
+      modal.classList.remove('hidden');
+      modal.style.display = 'flex';
+    }
+
+    function closeModalUsuario() {
+      const modal = document.getElementById('modal-usuario');
+      modal.classList.add('hidden');
+      modal.style.display = 'none';
+      document.getElementById('form-usuario').reset();
+      editingUserId = null;
+    }
+
+    async function guardarUsuario(e) {
+      e.preventDefault();
+
+      const nombre = document.getElementById('input-nombre-usuario').value;
+      const usuario = document.getElementById('input-usuario-login').value;
+      const rol = document.getElementById('input-rol-usuario').value;
+      const password = document.getElementById('input-password-usuario').value;
+
+      if (editingUserId) {
+        // Editar usuario existente
+        const user = usuarios.find(u => u.__backendId === editingUserId);
+        if (!user) return;
+
+        // Verificar que el nombre de usuario no esté en uso por otro usuario
+        const existeUsuario = usuarios.some(u => u.usuario === usuario && u.__backendId !== editingUserId);
+        if (existeUsuario) {
+          showToast('El nombre de usuario ya existe', 'error');
+          return;
+        }
+
+        const updatedUser = {
+          ...user,
+          nombre_completo: nombre,
+          usuario: usuario,
+          rol: rol
+        };
+
+        const result = await window.dataSdk.update(updatedUser);
+
+        if (result.isOk) {
+          closeModalUsuario();
+          showToast('Usuario actualizado exitosamente', 'success');
+        } else {
+          showToast('Error al actualizar usuario', 'error');
+        }
+      } else {
+        // Crear nuevo usuario
+        if (usuarios.length >= 999) {
+          showToast('Límite de 999 usuarios alcanzado', 'error');
+          return;
+        }
+
+        if (password.length < 6) {
+          showToast('La contraseña debe tener al menos 6 caracteres', 'error');
+          return;
+        }
+
+        const existeUsuario = usuarios.some(u => u.usuario === usuario);
+        if (existeUsuario) {
+          showToast('El nombre de usuario ya existe', 'error');
+          return;
+        }
+
+        const nuevoUsuario = {
+          tipo_registro: 'usuario',
+          usuario: usuario,
+          password: simpleHash(password),
+          rol: rol,
+          nombre_completo: nombre,
+          activo: true,
+          creado_en: new Date().toISOString()
+        };
+
+        const result = await window.dataSdk.create(nuevoUsuario);
+
+        if (result.isOk) {
+          closeModalUsuario();
+          showToast('Usuario creado exitosamente', 'success');
+        } else {
+          showToast('Error al crear usuario', 'error');
+        }
+      }
+    }
+
+    // Modal Functions - Restablecer Password
+    function restablecerPassword(userId) {
+      const user = usuarios.find(u => u.__backendId === userId);
+      if (!user) return;
+
+      document.getElementById('restablecer-usuario').value = user.usuario;
+
+      const modal = document.getElementById('modal-restablecer-password');
+      modal.classList.remove('hidden');
+      modal.style.display = 'flex';
+      modal.dataset.userId = userId;
+    }
+
+    function closeRestablecerPassword() {
+      const modal = document.getElementById('modal-restablecer-password');
+      modal.classList.add('hidden');
+      modal.style.display = 'none';
+      document.getElementById('form-restablecer-password').reset();
+    }
+
+    async function guardarNuevaPassword(e) {
+      e.preventDefault();
+
+      const modal = document.getElementById('modal-restablecer-password');
+      const userId = modal.dataset.userId;
+      const nuevaPassword = document.getElementById('restablecer-password-nueva').value;
+      const confirmarPassword = document.getElementById('restablecer-password-confirmar').value;
+
+      if (nuevaPassword.length < 6) {
+        showToast('La contraseña debe tener al menos 6 caracteres', 'error');
+        return;
+      }
+
+      if (nuevaPassword !== confirmarPassword) {
+        showToast('Las contraseñas no coinciden', 'error');
+        return;
+      }
+
+      const user = usuarios.find(u => u.__backendId === userId);
+      if (!user) return;
+
+      const updatedUser = {
+        ...user,
+        password: simpleHash(nuevaPassword)
+      };
+
+      const result = await window.dataSdk.update(updatedUser);
+
+      if (result.isOk) {
+        closeRestablecerPassword();
+        showToast('Contraseña restablecida exitosamente', 'success');
+      } else {
+        showToast('Error al restablecer contraseña', 'error');
+      }
+    }
+
+    async function toggleUsuarioActivo(userId) {
+      const user = usuarios.find(u => u.__backendId === userId);
+      if (!user) return;
+
+      // Verificar que no se desactive a sí mismo
+      if (currentUser && currentUser.__backendId === userId) {
+        showToast('No puedes desactivar tu propio usuario', 'error');
+        return;
+      }
+
+      const updatedUser = {
+        ...user,
+        activo: !user.activo
+      };
+
+      const result = await window.dataSdk.update(updatedUser);
+
+      if (result.isOk) {
+        showToast(updatedUser.activo ? 'Usuario activado' : 'Usuario desactivado', 'success');
+      } else {
+        showToast('Error al cambiar estado del usuario', 'error');
+      }
+    }
+
+    // Modal Functions - Corporación
+    function openModalCorporacion() {
+      const modal = document.getElementById('modal-corporacion');
+      modal.classList.remove('hidden');
+      modal.style.display = 'flex';
+    }
+
+    function closeModalCorporacion() {
+      const modal = document.getElementById('modal-corporacion');
+      modal.classList.add('hidden');
+      modal.style.display = 'none';
+      document.getElementById('form-corporacion').reset();
+    }
+
+    function guardarCorporacion(e) {
+      e.preventDefault();
+      
+      const nombre = document.getElementById('input-nombre-corporacion').value;
+      
+      if (corporaciones.includes(nombre)) {
+        showToast('Esta corporación ya existe', 'error');
+        return;
+      }
+
+      corporaciones.push(nombre);
+      updateCorporacionesList();
+      closeModalCorporacion();
+      showToast('Corporación agregada exitosamente', 'success');
+    }
+
+    function eliminarCorporacion(nombre) {
+      const confirmDiv = document.createElement('div');
+      confirmDiv.className = 'fixed inset-0 modal-overlay flex items-center justify-center z-50';
+      confirmDiv.innerHTML = `
+        <div class="glass-effect rounded-2xl p-8 max-w-md w-full mx-4">
+          <h3 class="text-2xl font-bold mb-4">Confirmar Eliminación</h3>
+          <p class="mb-6 opacity-75">¿Está seguro de eliminar la corporación <strong>${nombre}</strong>?</p>
+          <div class="flex justify-end gap-4">
+            <button id="cancel-delete-corp" class="px-6 py-3 rounded-lg font-semibold bg-gray-600 hover:bg-gray-700">
+              Cancelar
+            </button>
+            <button id="confirm-delete-corp" class="px-6 py-3 rounded-lg font-semibold bg-red-600 hover:bg-red-700">
+              Eliminar
+            </button>
+          </div>
+        </div>
+      `;
+
+      document.body.appendChild(confirmDiv);
+
+      confirmDiv.querySelector('#cancel-delete-corp').addEventListener('click', () => {
+        confirmDiv.remove();
+      });
+
+      confirmDiv.querySelector('#confirm-delete-corp').addEventListener('click', () => {
+        corporaciones = corporaciones.filter(c => c !== nombre);
+        updateCorporacionesList();
+        confirmDiv.remove();
+        showToast('Corporación eliminada exitosamente', 'success');
+      });
+    }
+
+    async function turnarAutomaticamente() {
+      const checkboxes = document.querySelectorAll('.abogado-checkbox:checked');
+      const abogadosSeleccionados = Array.from(checkboxes).map(cb => cb.dataset.nombre);
+
+      if (abogadosSeleccionados.length === 0) {
+        showToast('Por favor seleccione al menos un abogado', 'error');
+        return;
+      }
+
+      const pendientes = expedientes.filter(exp => !exp.abogado_asignado);
+
+      if (pendientes.length === 0) {
+        showToast('No hay expedientes pendientes por turnar', 'warning');
+        return;
+      }
+
+      const btnTurnar = document.getElementById('btn-turnar-automatico');
+      const originalText = btnTurnar.innerHTML;
+      btnTurnar.innerHTML = '<div class="loading-spinner mx-auto"></div>';
+      btnTurnar.disabled = true;
+
+      let abogadoIdx = 0;
+      const fechaAsignacion = new Date().toISOString().split('T')[0];
+
+      for (const exp of pendientes) {
+        const abogadoAsignado = abogadosSeleccionados[abogadoIdx % abogadosSeleccionados.length];
+        
+        const updatedExp = {
+          ...exp,
+          abogado_asignado: abogadoAsignado,
+          fecha_asignacion: fechaAsignacion
+        };
+
+        await window.dataSdk.update(updatedExp);
+        abogadoIdx++;
+      }
+
+      btnTurnar.innerHTML = originalText;
+      btnTurnar.disabled = false;
+
+      showToast(`${pendientes.length} expedientes turnados exitosamente`, 'success');
+    }
+
+    function descargarExcel() {
+      const filterInicio = document.getElementById('reporte-fecha-inicio').value;
+      const filterFin = document.getElementById('reporte-fecha-fin').value;
+      const filterTipo = document.getElementById('reporte-tipo').value;
+
+      let data = getExpedientesVisibles();
+
+      if (filterInicio) {
+        data = data.filter(exp => exp.fecha_llegada >= filterInicio);
+      }
+      if (filterFin) {
+        data = data.filter(exp => exp.fecha_llegada <= filterFin);
+      }
+      if (filterTipo) {
+        data = data.filter(exp => getTipoFromNumero(exp.numero_expediente) === filterTipo);
+      }
+
+      let csv = 'Número Expediente,Tipo,Fecha Llegada,Fecha Asignación,Abogado,Estado,Conclusión,Fecha Conclusión\n';
+      
+      data.forEach(exp => {
+        const tipo = getTipoFromNumero(exp.numero_expediente);
+        const estado = getEstadoExpediente(exp);
+        csv += `"${exp.numero_expediente}","${tipo}","${exp.fecha_llegada}","${exp.fecha_asignacion || ''}","${exp.abogado_asignado || ''}","${estado}","${exp.conclusion || ''}","${exp.fecha_conclusion || ''}"\n`;
+      });
+
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', `reporte_expedientes_${new Date().toISOString().split('T')[0]}.csv`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      showToast('Reporte descargado exitosamente', 'success');
+    }
+
+    // Navigation
+    function switchView(viewName) {
+      document.querySelectorAll('.view-container').forEach(view => {
+        view.classList.add('hidden');
+      });
+
+      document.getElementById(`view-${viewName}`).classList.remove('hidden');
+
+      document.querySelectorAll('.sidebar-item').forEach(item => {
+        item.classList.remove('active');
+      });
+
+      const navItem = document.querySelector(`[data-view="${viewName}"]`);
+      if (navItem) {
+        navItem.classList.add('active');
+      }
+
+      currentView = viewName;
+    }
+
+    // Event Listeners
+    document.addEventListener('DOMContentLoaded', async () => {
+      await initDataSDK();
+      checkSession();
+
+      // Login
+      document.getElementById('form-login').addEventListener('submit', handleLogin);
+      document.getElementById('btn-cerrar-sesion').addEventListener('click', cerrarSesion);
+
+      // Sidebar navigation
+      document.querySelectorAll('.sidebar-item').forEach(item => {
+        item.addEventListener('click', () => {
+          const view = item.dataset.view;
+          switchView(view);
+        });
+      });
+
+      // Expediente masivo modal (Turnado)
+      document.getElementById('btn-nuevo-expediente-turnado').addEventListener('click', openModalExpedienteMasivo);
+      document.getElementById('btn-cancelar-expediente-masivo').addEventListener('click', closeModalExpedienteMasivo);
+      document.getElementById('form-expediente-masivo').addEventListener('submit', guardarExpedientesMasivos);
+
+      // Detalle modal
+      document.getElementById('btn-cerrar-detalle').addEventListener('click', closeDetalleExpediente);
+      document.getElementById('btn-guardar-conclusion').addEventListener('click', guardarConclusion);
+      document.getElementById('btn-agregar-elemento').addEventListener('click', openModalAgregarElemento);
+
+      // Agregar elemento modal
+      document.getElementById('btn-cancelar-elemento').addEventListener('click', closeModalAgregarElemento);
+      document.getElementById('form-agregar-elemento').addEventListener('submit', guardarNuevoElemento);
+
+      // Usuario modal
+      document.getElementById('btn-agregar-usuario').addEventListener('click', openModalUsuario);
+      document.getElementById('btn-cancelar-usuario').addEventListener('click', closeModalUsuario);
+      document.getElementById('form-usuario').addEventListener('submit', guardarUsuario);
+
+      // Restablecer password modal
+      document.getElementById('btn-cancelar-restablecer').addEventListener('click', closeRestablecerPassword);
+      document.getElementById('form-restablecer-password').addEventListener('submit', guardarNuevaPassword);
+
+      // Corporacion modal
+      document.getElementById('btn-agregar-corporacion').addEventListener('click', openModalCorporacion);
+      document.getElementById('btn-cancelar-corporacion').addEventListener('click', closeModalCorporacion);
+      document.getElementById('form-corporacion').addEventListener('submit', guardarCorporacion);
+
+      // Filters
+      document.getElementById('filter-estado').addEventListener('change', updateExpedientesList);
+      document.getElementById('filter-tipo').addEventListener('change', updateExpedientesList);
+      document.getElementById('filter-corporacion').addEventListener('change', updateExpedientesList);
+      document.getElementById('filter-abogado').addEventListener('change', updateExpedientesList);
+      document.getElementById('search-expediente').addEventListener('input', updateExpedientesList);
+
+      // Turnado
+      document.getElementById('btn-turnar-automatico').addEventListener('click', turnarAutomaticamente);
+
+      // Reportes
+      document.getElementById('btn-descargar-excel').addEventListener('click', descargarExcel);
+
+      // Citatorios
+      document.getElementById('btn-aplicar-filtros-citatorios').addEventListener('click', updateCitatorios);
+
+      // Initial render
+      updateCorporacionesList();
+    });
+
+    // Make functions available globally
+    window.agregarActuacion = agregarActuacion;
+    window.eliminarCorporacion = eliminarCorporacion;
+    window.editarUsuario = editarUsuario;
+    window.restablecerPassword = restablecerPassword;
+    window.toggleUsuarioActivo = toggleUsuarioActivo;
+    window.marcarAsistenciaCitatorio = marcarAsistenciaCitatorio;
+    window.verExpedienteDesdeView = verExpedienteDesdeView;
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9cee7e5215747b2b',t:'MTc3MTI2MDA5Ni4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
